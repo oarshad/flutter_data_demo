@@ -1,68 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_data/flutter_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'main.data.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(ProviderScope(
+    child: const MyApp(),
+    overrides: [configureRepositoryLocalStorage()],
+  ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text("Demo App"),
         ),
+        body: ref.watch(repositoryInitializerProvider()).when(
+            data: (_) => Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () async {
+                            final tasks = await ref.tasks.findAll(remote: true);
+                            for (var element in tasks) {
+                              print(element);
+                            }
+                          },
+                          child: const Text("Remote Data")),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      ElevatedButton(
+                          onPressed: () async {
+                            final tasks =
+                                await ref.tasks.findAll(remote: false);
+                            for (var element in tasks) {
+                              print(element);
+                            }
+                          },
+                          child: const Text("Offline Data"))
+                    ],
+                  ),
+                ),
+            loading: () => const Center(child: Text("Loading")),
+            error: (e, s) => const Center(child: Text("Error"))),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
