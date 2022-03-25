@@ -17,7 +17,7 @@ class Task with DataModel<Task> {
 
   @override
   String toString() {
-    return 'Task{id: $id, name: $name, comments: $comments}';
+    return 'Task{id: $id, name: $name}';
   }
 }
 

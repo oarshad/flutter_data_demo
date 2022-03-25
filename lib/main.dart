@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_data/flutter_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'main.data.dart';
@@ -36,6 +35,7 @@ class MyApp extends ConsumerWidget {
                             final tasks = await ref.tasks.findAll(remote: true);
                             for (var element in tasks) {
                               print(element);
+                              element.comments.toList().forEach((comment) => print(comment));
                             }
                           },
                           child: const Text("Remote Data")),
@@ -48,6 +48,7 @@ class MyApp extends ConsumerWidget {
                                 await ref.tasks.findAll(remote: false);
                             for (var element in tasks) {
                               print(element);
+                              element.comments.toList().forEach((comment) => print(comment));
                             }
                           },
                           child: const Text("Offline Data"))
